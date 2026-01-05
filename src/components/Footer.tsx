@@ -11,7 +11,6 @@ const footerLinks = {
     { label: 'Training Programs', href: '#services' },
   ],
   company: [
-    { label: 'About Us', href: '#about' },
     { label: 'Learning Platform', href: 'https://learn.aipossible.org' },
     { label: 'Contact', href: '#contact' },
   ],
@@ -51,7 +50,9 @@ export default function Footer() {
             <div className="flex gap-4">
               {/* Social Icons */}
               <a 
-                href="#" 
+                href="https://www.linkedin.com/company/aipossible/posts/?feedView=all" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-lg glass flex items-center justify-center text-[var(--color-text-dim)] hover:text-[var(--color-cyan)] hover:border-[var(--color-cyan)]/30 transition-all duration-300"
                 aria-label="LinkedIn"
               >

@@ -51,14 +51,44 @@ export default function Contact() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: 'success' | 'error' | null;
+    message: string;
+  }>({ type: null, message: '' });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    alert('Thank you for your message! We will get back to you soon.');
-    setFormState({ name: '', email: '', organization: '', message: '' });
-    setIsSubmitting(false);
+    setSubmitStatus({ type: null, message: '' });
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formState),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message');
+      }
+
+      setSubmitStatus({
+        type: 'success',
+        message: 'Thank you for your message! We will get back to you soon.',
+      });
+      setFormState({ name: '', email: '', organization: '', message: '' });
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to send message. Please try again later.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -125,12 +155,14 @@ export default function Contact() {
               <p className="text-sm text-[var(--color-text-dim)] mb-3">Follow us</p>
               <div className="flex gap-3">
                 {[
-                  { name: 'LinkedIn', href: '#' },
+                  { name: 'LinkedIn', href: 'https://www.linkedin.com/company/aipossible/posts/?feedView=all' },
                   { name: 'Twitter', href: '#' },
                 ].map((social) => (
                   <a
                     key={social.name}
                     href={social.href}
+                    target={social.href !== '#' ? '_blank' : undefined}
+                    rel={social.href !== '#' ? 'noopener noreferrer' : undefined}
                     className="px-4 py-2 rounded-lg glass text-sm text-[var(--color-text-dim)] hover:text-[var(--color-cyan)] hover:border-[var(--color-cyan)]/30 transition-all duration-300"
                   >
                     {social.name}
@@ -212,6 +244,18 @@ export default function Contact() {
             >
               {isSubmitting ? 'Sending...' : 'Send Message'}
             </button>
+
+            {submitStatus.type && (
+              <div
+                className={`p-4 rounded-xl text-sm ${
+                  submitStatus.type === 'success'
+                    ? 'bg-[var(--color-cyan)]/10 border border-[var(--color-cyan)]/30 text-[var(--color-cyan)]'
+                    : 'bg-red-500/10 border border-red-500/30 text-red-400'
+                }`}
+              >
+                {submitStatus.message}
+              </div>
+            )}
 
             <p className="text-xs text-center text-[var(--color-muted)]">
               We typically respond within 24 hours.
